@@ -8,7 +8,7 @@
   "capabilities": [
     "board-buttons"
   ],
-  "connectorUrl": "https://toikairakau.github.io/trello-gantt-powerup/connector.js",
+  "connectorUrl": "https://lourenzoavelar.github.io/trello-gantt-powerup/connector.js",
   "tags": [
     "project-management",
     "timeline",
