@@ -527,12 +527,12 @@
 
     /* ─── Init ─── */
     function initialize() {
-      t.board('id', 'lists').then(function(board) {
-        allLists = board.lists;
+      t.lists('id', 'name').then(function(lists) {
+        allLists = lists;
         renderListSelector();
         setupZoomControls();
       }).catch(function(err) {
-        console.error('Error loading board:', err);
+        console.error('Error loading lists:', err);
         document.getElementById('listSelector').innerHTML =
           '<div class="state-msg"><span class="state-text" style="color:#ef4444;">Error loading lists</span></div>';
       });
