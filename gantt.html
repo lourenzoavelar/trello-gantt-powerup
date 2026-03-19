@@ -462,24 +462,24 @@
     <div class="header">
       <h1>
         <span class="icon">📊</span>
-        Gantt Chart
+        <span id="i18nTitle">Gantt Chart</span>
       </h1>
       <div class="zoom-controls" id="zoomControls" style="display:none;">
-        <button class="zoom-btn active" data-zoom="day">Day</button>
-        <button class="zoom-btn" data-zoom="week">Week</button>
+        <button class="zoom-btn active" data-zoom="day" id="i18nBtnDay">Day</button>
+        <button class="zoom-btn" data-zoom="week" id="i18nBtnWeek">Week</button>
       </div>
     </div>
 
     <div class="controls">
       <div class="controls-header">
-        <strong>Lists</strong>
+        <strong id="i18nLists">Lists</strong>
         <div class="controls-actions">
           <button class="btn" id="btnSelectAll">Select All</button>
           <button class="btn" id="btnDeselectAll">Deselect All</button>
         </div>
       </div>
       <div class="list-selector" id="listSelector">
-        <div class="state-msg"><span class="state-text">Loading lists…</span></div>
+        <div class="state-msg"><span class="state-text" id="i18nLoading">Loading lists…</span></div>
       </div>
     </div>
 
@@ -492,7 +492,7 @@
     <div id="emptyState">
       <div class="state-msg">
         <div class="state-icon">📋</div>
-        <div class="state-text">Select at least one list to view the Gantt chart</div>
+        <div class="state-text" id="i18nEmptyState">Select at least one list to view the Gantt chart</div>
       </div>
     </div>
   </div>
@@ -502,6 +502,55 @@
 
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
   <script>
+    /* ─── i18n ─── */
+    var TRANSLATIONS = {
+      en: {
+        ganttChart: 'Gantt Chart',
+        day: 'Day',
+        week: 'Week',
+        lists: 'Lists',
+        selectAll: 'Select All',
+        deselectAll: 'Deselect All',
+        card: 'Card',
+        loadingLists: 'Loading lists\u2026',
+        selectAtLeastOne: 'Select at least one list to view the Gantt chart',
+        noCardsFound: 'No cards with due dates found in the selected lists',
+        errorLoadingLists: 'Error loading lists',
+        tooltipStart: 'Start',
+        tooltipDue: 'Due',
+        tooltipDuration: 'Duration',
+        dueOnly: 'Due date only',
+        dayUnit: function(n) { return n + ' day' + (n !== 1 ? 's' : ''); },
+        dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        dateLocale: 'en-US'
+      },
+      'pt-BR': {
+        ganttChart: 'Gr\u00e1fico de Gantt',
+        day: 'Dia',
+        week: 'Semana',
+        lists: 'Listas',
+        selectAll: 'Selecionar Tudo',
+        deselectAll: 'Desmarcar Tudo',
+        card: 'Cart\u00e3o',
+        loadingLists: 'Carregando listas\u2026',
+        selectAtLeastOne: 'Selecione pelo menos uma lista para ver o gr\u00e1fico de Gantt',
+        noCardsFound: 'Nenhum cart\u00e3o com data de entrega encontrado nas listas selecionadas',
+        errorLoadingLists: 'Erro ao carregar listas',
+        tooltipStart: 'In\u00edcio',
+        tooltipDue: 'Entrega',
+        tooltipDuration: 'Dura\u00e7\u00e3o',
+        dueOnly: 'Somente data de entrega',
+        dayUnit: function(n) { return n + ' dia' + (n !== 1 ? 's' : ''); },
+        dayNames: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S\u00e1b'],
+        dateLocale: 'pt-BR'
+      }
+    };
+
+    // Detect locale: use pt-BR if navigator language starts with 'pt', otherwise English
+    var detectedLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+    var locale = detectedLang.startsWith('pt') ? 'pt-BR' : 'en';
+    var i18n = TRANSLATIONS[locale];
+
     /* ─── State ─── */
     var t = window.TrelloPowerUp.iframe();
     var allLists = [];
@@ -523,10 +572,20 @@
       ['#6366f1', '#4f46e5']
     ];
 
-    var DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
     /* ─── Init ─── */
+    function applyStaticTranslations() {
+      document.getElementById('i18nTitle').textContent = i18n.ganttChart;
+      document.getElementById('i18nBtnDay').textContent = i18n.day;
+      document.getElementById('i18nBtnWeek').textContent = i18n.week;
+      document.getElementById('i18nLists').textContent = i18n.lists;
+      document.getElementById('btnSelectAll').textContent = i18n.selectAll;
+      document.getElementById('btnDeselectAll').textContent = i18n.deselectAll;
+      document.getElementById('i18nLoading').textContent = i18n.loadingLists;
+      document.getElementById('i18nEmptyState').textContent = i18n.selectAtLeastOne;
+    }
+
     function initialize() {
+      applyStaticTranslations();
       t.lists('id', 'name').then(function(lists) {
         allLists = lists;
         renderListSelector();
@@ -534,7 +593,7 @@
       }).catch(function(err) {
         console.error('Error loading lists:', err);
         document.getElementById('listSelector').innerHTML =
-          '<div class="state-msg"><span class="state-text" style="color:#ef4444;">Error loading lists</span></div>';
+          '<div class="state-msg"><span class="state-text" style="color:#ef4444;">' + i18n.errorLoadingLists + '</span></div>';
       });
     }
 
@@ -647,7 +706,7 @@
           document.getElementById('emptyState').style.display = 'none';
           document.getElementById('zoomControls').style.display = 'none';
           document.getElementById('ganttTable').innerHTML =
-            '<div class="state-msg"><div class="state-icon">📭</div><div class="state-text">No cards with due dates found in the selected lists</div></div>';
+            '<div class="state-msg"><div class="state-icon">📭</div><div class="state-text">' + i18n.noCardsFound + '</div></div>';
           return;
         }
         document.getElementById('ganttWrapper').style.display = 'block';
@@ -709,7 +768,7 @@
         }
       } else {
         dateRange.forEach(function(d) {
-          columns.push({ start: d, end: d, label: fmtShort(d), dayName: DAY_NAMES[d.getDay()], isToday: sameDay(d, today), isWeekend: d.getDay() === 0 || d.getDay() === 6 });
+          columns.push({ start: d, end: d, label: fmtShort(d), dayName: i18n.dayNames[d.getDay()], isToday: sameDay(d, today), isWeekend: d.getDay() === 0 || d.getDay() === 6 });
         });
       }
 
@@ -722,7 +781,7 @@
 
       // Build HTML
       var html = '<div class="gantt-head">';
-      html += '<div class="gantt-head-label">Card</div>';
+      html += '<div class="gantt-head-label">' + i18n.card + '</div>';
       html += '<div class="gantt-head-timeline">';
       columns.forEach(function(col) {
         var cls = 'day-col';
@@ -764,7 +823,7 @@
         dataAttrs += ' data-list="' + escHtml(list ? list.name : '') + '"';
         dataAttrs += ' data-start="' + (card.start ? fmtFull(startDate) : '—') + '"';
         dataAttrs += ' data-due="' + fmtFull(dueDate) + '"';
-        dataAttrs += ' data-days="' + (hasBothDates ? durationDays + ' day' + (durationDays !== 1 ? 's' : '') : 'Due date only') + '"';
+        dataAttrs += ' data-days="' + (hasBothDates ? i18n.dayUnit(durationDays) : i18n.dueOnly) + '"';
         dataAttrs += ' data-color="' + grad[0] + '"';
 
         html += '<div class="gantt-row">';
@@ -806,9 +865,9 @@
     function showTooltip(e, el) {
       var html = '<div class="tt-name">' + el.getAttribute('data-name') + '</div>';
       html += '<div class="tt-row"><span class="tt-list-dot" style="background:' + el.getAttribute('data-color') + '"></span>' + el.getAttribute('data-list') + '</div>';
-      html += '<div class="tt-row"><span class="tt-label">Start</span>' + el.getAttribute('data-start') + '</div>';
-      html += '<div class="tt-row"><span class="tt-label">Due</span>' + el.getAttribute('data-due') + '</div>';
-      html += '<div class="tt-row"><span class="tt-label">Duration</span>' + el.getAttribute('data-days') + '</div>';
+      html += '<div class="tt-row"><span class="tt-label">' + i18n.tooltipStart + '</span>' + el.getAttribute('data-start') + '</div>';
+      html += '<div class="tt-row"><span class="tt-label">' + i18n.tooltipDue + '</span>' + el.getAttribute('data-due') + '</div>';
+      html += '<div class="tt-row"><span class="tt-label">' + i18n.tooltipDuration + '</span>' + el.getAttribute('data-days') + '</div>';
       tooltipEl.innerHTML = html;
       tooltipEl.classList.add('visible');
       moveTooltip(e);
@@ -829,11 +888,11 @@
 
     /* ─── Helpers ─── */
     function fmtShort(d) {
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return d.toLocaleDateString(i18n.dateLocale, { month: 'short', day: 'numeric' });
     }
 
     function fmtFull(d) {
-      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      return d.toLocaleDateString(i18n.dateLocale, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     }
 
     function sameDay(a, b) {
